@@ -1,0 +1,38 @@
+{
+  "name": "prisma-generator-source-of-truth",
+  "version": "0.0.1",
+  "type": "commonjs",
+  "description": "A Prisma generator that uses your Prisma schema to generate a single source of truth",
+  "license": "MIT",
+  "keywords": ["prisma", "generator", "source-of-truth", "zod"],
+  "homepage": "https://github.com/apteryxxyz/prisma-generator-source-of-truth",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/apteryxxyz/prisma-generator-source-of-truth.git"
+  },
+  "bugs": {
+    "url": "https://github.com/apteryxxyz/prisma-generator-source-of-truth/issues"
+  },
+  "files": ["dist"],
+  "bin": {
+    "prisma-generator-source-of-truth": "./dist/bin.js",
+    "source-of-truth": "./dist/bin.js"
+  },
+  "scripts": {
+    "lint": "biome lint . --write",
+    "format": "biome format . --write",
+    "check": "tsc --noEmit",
+    "build": "tsup",
+    "dev": "pnpm build --watch"
+  },
+  "dependencies": {
+    "@prisma/generator-helper": "^5.16.2",
+    "code-block-writer": "^13.0.1"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.8.3",
+    "@types/node": "^20.14.10",
+    "tsup": "^8.1.0",
+    "typescript": "^5.5.3"
+  }
+}
