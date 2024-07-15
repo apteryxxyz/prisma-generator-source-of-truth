@@ -2,11 +2,7 @@ import type { DMMF } from '@prisma/generator-helper';
 import type CodeBlockWriter from 'code-block-writer';
 import { parseDocumentation } from '~/parsers/documentation';
 
-export function writeField(
-  w: CodeBlockWriter,
-  f: DMMF.Field,
-  withRelations = false,
-) {
+export function writeField(w: CodeBlockWriter, f: DMMF.Field) {
   const blocks = parseDocumentation(f.documentation ?? '');
   if (blocks.some((b) => b.type === 'import'))
     throw new Error('Fields cannot import');
@@ -31,12 +27,7 @@ export function writeField(
     w.quote(f.name).write(': ').write(f.type);
     writePostScalarField(w, f);
   } else if (f.kind === 'object') {
-    if (withRelations) {
-      w.quote(f.name).write(': z.lazy(() => ').write(f.type).write(')');
-      writePostScalarField(w, f);
-    } else {
-      w.writeLine(`// ${f.name} is an object field`);
-    }
+    w.writeLine(`// ${f.name} is an object field`);
   } else {
     throw new Error(`Unsupported field kind: ${f.kind}`);
   }

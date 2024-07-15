@@ -18,36 +18,13 @@ export function writeModel(w: CodeBlockWriter, m: DMMF.Model) {
 
   // TODO: JSDoc
 
-  w.write(`export const ${m.name} = Object.assign(`);
-  w.indent(() => {
-    w.write('z.object({');
-    // biome-ignore lint/complexity/noForEach: <explanation>
-    w.indent(() => m.fields.forEach((f) => writeField(w, f)));
-    w.write('})');
-    w.conditionalWrite(Boolean(zod), () => `.${zod!.schema}`);
-    w.write(', ').newLine();
-
-    w.write('{');
-    w.indent(() => {
-      w.write('WithRelations: z.object({');
-      // biome-ignore lint/complexity/noForEach: <explanation>
-      w.indent(() => m.fields.forEach((f) => writeField(w, f, true)));
-      w.write('})');
-      w.conditionalWrite(Boolean(zod), () => `.${zod!.schema}`);
-      w.write(', ').newLine();
-    });
-    w.write('}');
-  });
-  w.write(')').newLine();
+  w.write(`export const ${m.name} = z.object({`);
+  // biome-ignore lint/complexity/noForEach: <explanation>
+  w.indent(() => m.fields.forEach((f) => writeField(w, f)));
+  w.write('})');
+  w.conditionalWrite(Boolean(zod), () => `.${zod!.schema}`);
 
   w.writeLine(`export type ${m.name} = z.infer<typeof ${m.name}>`);
-  w.writeLine(`export namespace ${m.name} {`);
-  w.indent(() => {
-    w.writeLine(
-      `export type WithRelations = z.infer<typeof ${m.name}.WithRelations>`,
-    );
-  });
-  w.writeLine('}');
 
   for (const e of blocks.filter((b) => b.type === 'export'))
     w.writeLine(`export { ${e.what} }`);
