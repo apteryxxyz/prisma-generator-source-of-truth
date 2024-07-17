@@ -64,6 +64,7 @@ function writeBaseScalarField(w: CodeBlockWriter, f: DMMF.Field) {
 
 function writePostScalarField(w: CodeBlockWriter, f: DMMF.Field) {
   if (f.isList) w.write('.array()');
+  if (!f.isRequired) w.write('.nullable()');
   if (!f.isRequired) w.write('.optional()');
   w.write(',').newLine();
 }
