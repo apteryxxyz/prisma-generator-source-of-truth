@@ -49,7 +49,7 @@ function writeBaseScalarField(w: CodeBlockWriter, f: DMMF.Field) {
       w.write('boolean()');
       break;
     case 'DateTime':
-      w.write('string()');
+      w.write('date()');
       break;
     case 'Float':
       w.write('number()');
