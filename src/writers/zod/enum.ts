@@ -3,7 +3,7 @@ import type CodeBlockWriter from 'code-block-writer';
 import { parseDocumentation } from '~/parsers/documentation';
 
 export function writeEnum(w: CodeBlockWriter, e: DMMF.DatamodelEnum) {
-  w.newLine().writeLine(`// ==== ${e.name} ==== //`).newLine();
+  w.newLine().writeLine(`// ===== ${e.name} Zod Schema ===== //`).newLine();
 
   // TODO: JSDoc
 
@@ -15,8 +15,7 @@ export function writeEnum(w: CodeBlockWriter, e: DMMF.DatamodelEnum) {
 
   w.write(`export const ${e.name} = z.enum([`);
   for (const value of e.values) w.quote(value.name).write(', ');
-  w.write('])').newLine();
-  w.writeLine(`export type ${e.name} = z.infer<typeof ${e.name}>`);
+  w.write('])').writeLine(`export type ${e.name} = z.infer<typeof ${e.name}>`);
 
   for (const e of blocks.filter((b) => b.type === 'export'))
     w.writeLine(`export { ${e.what} }`);

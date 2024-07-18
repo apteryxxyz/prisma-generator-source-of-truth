@@ -1,7 +1,13 @@
 import { writeFile } from 'node:fs/promises';
 import { generatorHandler } from '@prisma/generator-helper';
 import CodeBlockWriter from 'code-block-writer';
-import { write } from './writers';
+import { z } from 'zod';
+import Zod from './writers/zod';
+
+const Config = z.object({
+  createZodSchemas: z.coerce.boolean().default(false),
+});
+export type Config = z.infer<typeof Config>;
 
 generatorHandler({
   onManifest(config) {
@@ -22,7 +28,8 @@ generatorHandler({
       useSingleQuote: true,
     });
 
-    write(writer, datamodel);
+    const config = Config.parse(generator.config);
+    if (config.createZodSchemas) Zod.write(writer, datamodel);
     await writeFile(generator.output.value, writer.toString());
   },
 });
