@@ -1,6 +1,6 @@
 {
   "name": "prisma-generator-source-of-truth",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "type": "commonjs",
   "description": "A Prisma generator that uses your Prisma schema to generate a single source of truth",
   "license": "MIT",
