@@ -2,21 +2,26 @@ import type { DMMF } from '@prisma/generator-helper';
 import type CodeBlockWriter from 'code-block-writer';
 import { parseDocumentation } from '~/parsers/documentation';
 
-export function writeEnum(w: CodeBlockWriter, e: DMMF.DatamodelEnum) {
-  w.newLine().writeLine(`// ===== ${e.name} Zod Schema ===== //`).newLine();
+export function writeEnum(writer: CodeBlockWriter, data: DMMF.DatamodelEnum) {
+  writer
+    .newLine()
+    .writeLine(`// ===== ${data.name} Zod Schema ===== //`)
+    .newLine();
 
   // TODO: JSDoc
 
-  const blocks = parseDocumentation(e.documentation ?? '');
+  const blocks = parseDocumentation(data.documentation ?? '');
   for (const i of blocks.filter((b) => b.type === 'import'))
-    w.writeLine(`import ${i.what} from '${i.from}'`);
+    writer.writeLine(`import ${i.what} from '${i.from}'`);
   for (const d of blocks.filter((b) => b.type === 'declare'))
-    w.writeLine(`const ${d.as} = ${d.what}`);
+    writer.writeLine(`const ${d.as} = ${d.what}`);
 
-  w.write(`export const ${e.name} = z.enum([`);
-  for (const value of e.values) w.quote(value.name).write(', ');
-  w.write('])').writeLine(`export type ${e.name} = z.infer<typeof ${e.name}>`);
+  writer.write(`export const ${data.name} = z.enum([`);
+  for (const value of data.values) writer.quote(value.name).write(', ');
+  writer
+    .write('])')
+    .writeLine(`export type ${data.name} = z.infer<typeof ${data.name}>`);
 
   for (const e of blocks.filter((b) => b.type === 'export'))
-    w.writeLine(`export { ${e.what} }`);
+    writer.writeLine(`export { ${e.what} }`);
 }

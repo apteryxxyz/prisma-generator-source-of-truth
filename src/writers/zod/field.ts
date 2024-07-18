@@ -2,8 +2,8 @@ import type { DMMF } from '@prisma/generator-helper';
 import type CodeBlockWriter from 'code-block-writer';
 import { parseDocumentation } from '~/parsers/documentation';
 
-export function writeField(w: CodeBlockWriter, f: DMMF.Field) {
-  const blocks = parseDocumentation(f.documentation ?? '');
+export function writeField(writer: CodeBlockWriter, data: DMMF.Field) {
+  const blocks = parseDocumentation(data.documentation ?? '');
   if (blocks.some((b) => b.type === 'import'))
     throw new Error('Fields cannot import');
   if (blocks.some((b) => b.type === 'declare'))
@@ -15,56 +15,63 @@ export function writeField(w: CodeBlockWriter, f: DMMF.Field) {
 
   const zod = blocks.find((b) => b.type === 'zod');
   if (zod?.kind === 'replace') {
-    w.quote(f.name).write(': z.').write(zod.schema).write(',').newLine();
+    writer
+      .quote(data.name)
+      .write(': z.')
+      .write(zod.schema)
+      .write(',')
+      .newLine();
   } else if (zod?.kind === 'extend') {
-    writeBaseScalarField(w, f);
-    w.write(`.${zod.schema}`);
-    writePostScalarField(w, f);
-  } else if (f.kind === 'scalar') {
-    writeBaseScalarField(w, f);
-    writePostScalarField(w, f);
-  } else if (f.kind === 'enum') {
-    w.quote(f.name).write(': ').write(f.type);
-    writePostScalarField(w, f);
-  } else if (f.kind === 'object') {
-    w.writeLine(`// ${f.name} is an object field`);
+    writeBaseScalarField(writer, data);
+    writer.write(`.${zod.schema}`);
+    writePostScalarField(writer, data);
+  } else if (data.kind === 'scalar') {
+    writeBaseScalarField(writer, data);
+    writePostScalarField(writer, data);
+  } else if (data.kind === 'enum') {
+    writer.quote(data.name).write(': ').write(data.type);
+    writePostScalarField(writer, data);
+  } else if (data.kind === 'object') {
+    writer.writeLine(`// ${data.name} is an object field`);
   } else {
-    throw new Error(`Unsupported field kind: ${f.kind}`);
+    throw new Error(`Unsupported field kind: ${data.kind}`);
   }
 }
 
-function writeBaseScalarField(w: CodeBlockWriter, f: DMMF.Field) {
-  w.quote(f.name).write(': z.');
-  switch (f.type) {
+function writeBaseScalarField(writer: CodeBlockWriter, data: DMMF.Field) {
+  writer.quote(data.name).write(': z.');
+  switch (data.type) {
     case 'String':
-      w.write('string()');
-      if (f.isRequired) w.write('.min(1)');
-      if (Reflect.get(f.default ?? {}, 'name') === 'uuid') w.write('.uuid()');
-      if (Reflect.get(f.default ?? {}, 'name') === 'cuid') w.write('.cuid()');
+      writer.write('string()');
+      if (data.isRequired) writer.write('.min(1)');
+      if (Reflect.get(data.default ?? {}, 'name') === 'uuid')
+        writer.write('.uuid()');
+      if (Reflect.get(data.default ?? {}, 'name') === 'cuid')
+        writer.write('.cuid()');
       break;
     case 'Int':
-      w.write('number().int()');
+      writer.write('number().int()');
       break;
     case 'Boolean':
-      w.write('boolean()');
+      writer.write('boolean()');
       break;
     case 'DateTime':
-      w.write('date()');
+      writer.write('date()');
       break;
     case 'Float':
-      w.write('number()');
+      writer.write('number()');
       break;
     case 'BigInt':
-      w.write('bigint()');
+      writer.write('bigint()');
       break;
     default:
-      throw new Error(`Unsupported scalar type: ${f.type}`);
+      throw new Error(`Unsupported scalar type: ${data.type}`);
   }
 }
 
-function writePostScalarField(w: CodeBlockWriter, f: DMMF.Field) {
-  if (f.isList) w.write('.array()');
-  if (!f.isRequired) w.write('.nullable()');
-  if (!f.isRequired) w.write('.optional()');
-  w.write(',').newLine();
+function writePostScalarField(writer: CodeBlockWriter, data: DMMF.Field) {
+  if (data.isList) writer.write('.array()');
+  if (!data.isRequired) writer.write('.nullable()');
+  if (!data.isRequired) writer.write('.optional()');
+  writer.write(',').newLine();
 }
